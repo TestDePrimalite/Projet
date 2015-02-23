@@ -1,9 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include "gmp.h"
+#include "lucasLehmerMersenne.h"
 
 int main(int argc, char const *argv[])
 {
 	int choix;
+	int p;
+	mpz_t n;
+	mpz_init(n);
 
 	do
 	{
@@ -17,7 +22,12 @@ int main(int argc, char const *argv[])
 		scanf("%d", &choix);
 		if(choix == 1)
 		{
-			
+			printf("Veuillez donner une valeur à p. (Le test sera effectué sur le nombre de Mersenne 2^p - 1)\n\tp = ");
+			scanf("%d", &p);
+			if(lucasLehmerMersenne(p))
+				printf("Ce nombre est premier.\n");
+			else
+				printf("Ce nombre n'est pas premier.\n");
 		}
 		else if(choix == 2)
 		{
