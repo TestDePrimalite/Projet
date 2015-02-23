@@ -2,11 +2,12 @@
 #include <stdlib.h>
 #include "gmp.h"
 #include "lucasLehmerMersenne.h"
+#include "lucasLehmerRiesel.h"
 
 int main(int argc, char const *argv[])
 {
 	int choix;
-	int p;
+	int p, k, n_;
 	mpz_t n;
 	mpz_init(n);
 
@@ -31,7 +32,14 @@ int main(int argc, char const *argv[])
 		}
 		else if(choix == 2)
 		{
-
+			printf("Test de la primalité de N = k * 2^n - 1.\nChoix de k ?\n");
+			scanf("%d", &k);
+			printf("Choix de n ?\n");
+			scanf("%d", &n_);
+			if (lucasLehmerRiesel((double)k, (double)n_))
+				printf("Ce nombre est premier.\n");
+			else
+				printf("Ce nombre n'est pas premier.\n");
 		}
 		else if(choix == 3)
 		{
