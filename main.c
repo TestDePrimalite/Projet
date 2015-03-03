@@ -3,6 +3,7 @@
 #include "gmp.h"
 #include "lucasLehmerMersenne.h"
 #include "lucasLehmerRiesel.h"
+#include "certificatPratt.h"
 
 int main(int argc, char const *argv[])
 {
@@ -43,7 +44,12 @@ int main(int argc, char const *argv[])
 		}
 		else if(choix == 3)
 		{
-
+			printf("Certificat de Pratt : Veuillez rentrer un nombre :\n");
+			scanf("%d", &p);
+			if(certificatPratt(p))
+				printf("Ce nombre est premier.\n");
+			else
+				printf("Ce nombre n'est pas premier.\n");
 		}
 		else if(choix == 4)
 		{
