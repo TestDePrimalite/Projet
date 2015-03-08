@@ -6,6 +6,11 @@
 #include "gmp.h"
 #include <math.h>
 
+struct facteursPremiers
+{
+	int *facteurs;
+	int longueur;
+} typedef facteursPremiers;
 int certificatPratt(int p);
 
 #endif
