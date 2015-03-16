@@ -11,6 +11,6 @@ struct facteursPremiers
 	int *facteurs;
 	int longueur;
 } typedef facteursPremiers;
-int certificatPratt(int p);
+int certificatPratt(int p, gmp_randstate_t state);
 
 #endif

@@ -10,6 +10,8 @@ int main(int argc, char const *argv[])
 	int choix;
 	int p, k, n_;
 	mpz_t n;
+	gmp_randstate_t state;
+	gmp_randinit_default(state);
 	mpz_init(n);
 
 	do
@@ -44,9 +46,11 @@ int main(int argc, char const *argv[])
 		}
 		else if(choix == 3)
 		{
+
 			printf("Certificat de Pratt : Veuillez rentrer un nombre :\n");
 			scanf("%d", &p);
-			if(certificatPratt(p))
+			gmp_randseed_ui(state, p);
+			if(certificatPratt(p, state))
 				printf("Ce nombre est premier.\n");
 			else
 				printf("Ce nombre n'est pas premier.\n");

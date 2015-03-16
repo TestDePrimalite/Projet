@@ -48,8 +48,9 @@ static void clearAll(mpz_t a, mpz_t n, mpz_t n_1, mpz_t resultatPgcd, mpz_t resu
 	mpz_clear(puis);
 }
 
-int certificatPratt(int p)
+int certificatPratt(int p, gmp_randstate_t state)
 {
+	FILE *fichier = NULL;
 	mpz_t a;
 	mpz_t n;
 	mpz_t n_1;
@@ -57,12 +58,13 @@ int certificatPratt(int p)
 	mpz_t resultatMod;
 	mpz_t resultatCalcul;
 	mpz_t puis;
-	gmp_randstate_t state;
+
+	
 	int i;
 
-	gmp_randinit_default(state);
+	
 	mpz_init_set_ui(n, p);
-	gmp_randseed(state, n);
+	
 	mpz_init(a);
 	
 	
@@ -71,10 +73,18 @@ int certificatPratt(int p)
 	mpz_init(resultatMod);
 	mpz_init(resultatCalcul);
 	mpz_init(puis);
+	fichier = fopen("nombresPremiers.txt", "r+");
+	if(fichier == NULL)
+	{
+		printf("Erreur lors de l'ouverture du fichier nombresPremiers.txt.\n");
+
+		exit(1);
+	}
 	if(mpz_cmp_ui(n, 2) == 0)
 	{
 		clearAll(a, n, n_1, resultatPgcd, resultatMod, resultatCalcul, puis);
-		printf("Ok ici %d\n", p);
+		//printf("Ok ici %d\n", p);
+		fclose(fichier);
 
 		return 1;
 	}
@@ -95,7 +105,7 @@ int certificatPratt(int p)
 			i = 0;
 			while(i < fact.longueur)
 			{printf("ici i = %d et fact.longueur = %d et facteurs = %d\n", i, fact.longueur, fact.facteurs[i]);
-				if(certificatPratt(fact.facteurs[i]) == 1)
+				if(certificatPratt(fact.facteurs[i], state) == 1)
 				{
 					mpz_cdiv_q_ui(puis, n_1, fact.facteurs[i]);gmp_printf("puis = %Zd\n", puis);
 					mpz_powm(resultatCalcul, a, puis, n);
@@ -103,29 +113,35 @@ int certificatPratt(int p)
 					{
 						gmp_printf("resultatCalcul = %Zd\n", resultatCalcul);
 						clearAll(a, n, n_1, resultatPgcd, resultatMod, resultatCalcul, puis);
+						fclose(fichier);
 
-						return certificatPratt(p);		// On relance un certificat pour choisir un a aléatoire différent
+						return certificatPratt(p, state);		// On relance un certificat pour choisir un a aléatoire différent
 					}
 				}
 				else
 				{
 					printf("Erreur : Un nombre dans la factorisation n'est pas premier.\n");
 					clearAll(a, n, n_1, resultatPgcd, resultatMod, resultatCalcul, puis);
+					fclose(fichier);
 					exit(1);
 				}
 				i = i + 1;
 			}
 			clearAll(a, n, n_1, resultatPgcd, resultatMod, resultatCalcul, puis);
+			fclose(fichier);
 
 			return 1;
 		}
 		else
 		{
 			clearAll(a, n, n_1, resultatPgcd, resultatMod, resultatCalcul, puis);
+			fclose(fichier);
 
 			return 0;
 		}	
 	}
+	clearAll(a, n, n_1, resultatPgcd, resultatMod, resultatCalcul, puis);
+	fclose(fichier);
 
 	return 1;
 }
