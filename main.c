@@ -4,13 +4,16 @@
 #include "lucasLehmerMersenne.h"
 #include "lucasLehmerRiesel.h"
 #include "certificatPratt.h"
+#include "pocklington.h"
 
 int main(int argc, char const *argv[])
 {
 	int choix;
 	int p, k, n_;
+	facteursPremiers f;
 	mpz_t n;
 	gmp_randstate_t state;
+	
 	gmp_randinit_default(state);
 	mpz_init(n);
 
@@ -57,10 +60,18 @@ int main(int argc, char const *argv[])
 		}
 		else if(choix == 4)
 		{
-
+			printf("Test de Pocklington : Veuillez rentrer un nombre :\n");
+			scanf("%d", &p);
+			mpz_set_ui(n, p);
+			f = factorisation(p-1);
+			if(pocklington(n, &f))
+				printf("Ce nombre est premier.\n");
+			else
+				printf("Ce nombre n'est pas premier.\n");
 		}
 	}while(choix == 1 || choix == 2 || choix == 3 || choix == 4);
 	
+	mpz_clear(n);
 
 	return 0;
 }
