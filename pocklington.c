@@ -24,12 +24,14 @@ const unsigned int primes[] = {
 
 int pocklington(mpz_t n, facteursPremiers *f) {
 	mpz_t n_; //n-1
-	mpz_t tmp;
+	mpz_t a, q, tmp;
 	int i, i_min, j, res;
 	
 	res = -1;
 	
 	mpz_init(n_);
+	mpz_init(a);
+	mpz_init(q);
 	mpz_init(tmp);
 	
 	//n_ = n-1
@@ -48,16 +50,56 @@ int pocklington(mpz_t n, facteursPremiers *f) {
 	}
 	
 	for (j = 0; j < LIMIT; j++) {
-		//TODO: a = primes[j]
-		//TODO: Verifier si a = n (si oui, n est premier)
-		//TODO: Verifier si a|n (si oui, n n'est pas premier)
-		//TODO: test de Fermat entre a et n (si non, n n'est pas premier)
-		for (i = i_min; i < f->longueur; i++) {
-			//TODO: q = f[i]
-			//TODO: Verifier si pgcd(a^((n-1)/q)-1, n) = 1 (si oui, n est premier)
+		//TODO: changer le a en int
+		mpz_set_ui(a, primes[j]);
+		//On verifie si a = n (si oui, n est premier)
+		if (mpz_cmp(n, a) == 0) {
+			printf("n = a = %i\n", primes[j]);
+			res = 2;
+			break;
 		}
+		//On verifie si a|n (si oui, n n'est pas premier)
+		if (mpz_divisible_p(n, a)) {
+			printf("a = %i divise n\n", primes[j]);
+			res = 0;
+			break;
+		}
+		//Test de Fermat entre a et n (si non, n n'est pas premier)
+		mpz_powm(tmp, a, n_, n); //tmp = a^(n-1) mod n
+		if (mpz_cmp_ui(tmp, 1) != 0) {
+			printf("Echec du test de Fermat : a = %i et n ne sont pas premier entre eux.\n", primes[j]);
+			res = 0;
+			break;
+		}
+		for (i = i_min; i < f->longueur; i++) {
+			//TODO: changer le q en int
+			mpz_set_ui(q, f->facteurs[i]);
+			//On verifie si pgcd(a^((n-1)/q)-1, n) = 1 (si oui, n est premier)
+			mpz_divexact(tmp, n_, q);
+			mpz_powm(tmp, a, tmp, n);
+			mpz_sub_ui(tmp, tmp, 1);
+			mpz_gcd(tmp, tmp, n);
+			if (mpz_cmp_ui(tmp, 1) != 0) {
+				if (mpz_cmp(tmp, n) < 0) {
+					printf("Echec du test de Pocklington\n", primes[j]);
+					res = 0;
+					break;
+				}
+			}
+		}
+		if (res != -1) {
+			break;
+		}
+	}
+	if (res == -1) {
+		printf("Tres grandes chances que n soit premier\n", primes[j]);
+		res = 1; //grandes chances que n soit premier
 	}
 	
 	mpz_clear(n_);
+	mpz_clear(a);
+	mpz_clear(q);
 	mpz_clear(tmp);
+	
+	return res;
 }

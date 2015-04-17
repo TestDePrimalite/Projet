@@ -1,6 +1,6 @@
 #include "certificatPratt.h"
 
-static facteursPremiers factorisation(int f)
+facteursPremiers factorisation(int f)
 {
 	int i;
 	facteursPremiers fact;
