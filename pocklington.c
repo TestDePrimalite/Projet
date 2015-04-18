@@ -81,10 +81,15 @@ int pocklington(mpz_t n, facteursPremiers *f) {
 			mpz_gcd(tmp, tmp, n);
 			if (mpz_cmp_ui(tmp, 1) != 0) {
 				if (mpz_cmp(tmp, n) < 0) {
-					printf("Echec du test de Pocklington\n", primes[j]);
+					printf("Echec du test de Pocklington\n");
 					res = 0;
 					break;
 				}
+			}
+			else {
+				printf("Succes du test de Pocklington : q = %i, a = %i\n", f->facteurs[i], primes[j]);
+				res = 2;
+				break;
 			}
 		}
 		if (res != -1) {
@@ -92,7 +97,7 @@ int pocklington(mpz_t n, facteursPremiers *f) {
 		}
 	}
 	if (res == -1) {
-		printf("Tres grandes chances que n soit premier\n", primes[j]);
+		printf("Tres grandes chances que n soit premier\n");
 		res = 1; //grandes chances que n soit premier
 	}
 	
