@@ -1,59 +1,77 @@
 #include "certificatPratt.h"
 
-facteursPremiers factorisation(int f)
+facteursPremiers factorisation(mpz_t f)
 {
-	int i;
+	mpz_t i;
 	facteursPremiers fact;
-	int tab[1024];
-	int marqueur = 0;
-	int racine = sqrt(f);
+	mpz_t tab[1024];
+	int marqueur = 0, j;
+	mpz_t racine;
+	mpz_t resultatMod;
+	mpz_t fCopie;
 
-	printf("On factorise le nombre %d\n", f);
+	mpz_init(resultatMod);
+	mpz_init(racine);
+	mpz_init_set_ui(i, 2);
+	mpz_sqrt(racine, f);
+	mpz_init_set(fCopie, f);
+	gmp_printf("On factorise le nombre %Zd\n", f);
 	fact.longueur = 0;
-	for(i = 2; i <= racine; i ++)
-	{printf("f = %d et i = %d et racine = %d\n", f, i, racine);
-		if(f % i == 0)
+	while(mpz_cmp(racine,i) >= 0)		// Valeur positive ou nulle si racine >= i 
+	{
+		gmp_printf("f = %Zd et i = %Zd et racine = %Zd\n", fCopie, i, racine);
+		mpz_mod(resultatMod, fCopie, i);
+		if(mpz_cmp_ui(resultatMod, 0) == 0)		// Si f % i = 0 (Equivaut a resultatMod = 0)
 		{
-			while(f % i == 0)
-				f = f / i;
+			while(mpz_cmp_ui(resultatMod, 0) == 0)
+			{
+				mpz_divexact(fCopie, fCopie, i);
+				mpz_mod(resultatMod, fCopie, i);
+				gmp_printf("fCopie = %Zd\n", fCopie);
+			}
 			fact.longueur ++;
-			tab[marqueur] = i;
+			mpz_init_set(tab[marqueur], i);
 			marqueur++;
 		}
+		mpz_add_ui(i, i, 1);		// Equivaut à i = i + 1
 	}
 	if(fact.longueur == 0)
 	{
 		fact.longueur = 1;
-		tab[marqueur] = f;
+		mpz_init_set(tab[marqueur], i);
 	}
-	fact.facteurs = malloc(fact.longueur * sizeof(int));
-	printf("Nombre de facteurs : %d\n", fact.longueur);
-	for(i = 0; i < fact.longueur; i++)
+	else if(mpz_cmp_ui(fCopie, 1) > 0)
 	{
-		fact.facteurs[i] = tab[i];
-		printf("Facteur %d = %d\n",i , fact.facteurs[i]);
+		fact.longueur++;
+		mpz_init_set(tab[marqueur], fCopie);		// Il faut rajouter le dernier facteur
 	}
+	fact.facteurs = malloc(fact.longueur * sizeof(mpz_t));
+	printf("Nombre de facteurs : %d\n", fact.longueur);
+	for(j = 0; j < fact.longueur; j++)
+	{
+		mpz_init_set(fact.facteurs[j], tab[j]);		// Equivaut à fact.facteurs[i] = tab[i]
+		gmp_printf("Facteur %d = %Zd\n",j , fact.facteurs[j]);
+	}
+	gmp_printf("fCopie = %Zd\n", fCopie);
 
 	return fact;
 }
 
-static void clearAll(mpz_t a, mpz_t n, mpz_t n_1, mpz_t resultatPgcd, mpz_t resultatMod, mpz_t resultatCalcul, mpz_t puis)
+static void clearAll(mpz_t a, mpz_t p_1, mpz_t resultatPgcd, mpz_t resultatMod, mpz_t resultatCalcul, mpz_t puis)
 {
 	mpz_clear(a);
-	mpz_clear(n);
-	mpz_clear(n_1);
+	mpz_clear(p_1);
 	mpz_clear(resultatPgcd);
 	mpz_clear(resultatMod);
 	mpz_clear(resultatCalcul);
 	mpz_clear(puis);
 }
 
-int certificatPratt(int p, gmp_randstate_t state)
+int certificatPratt(mpz_t p, gmp_randstate_t state)
 {
 	FILE *fichier = NULL;
 	mpz_t a;
-	mpz_t n;
-	mpz_t n_1;
+	mpz_t p_1;
 	mpz_t resultatPgcd;
 	mpz_t resultatMod;
 	mpz_t resultatCalcul;
@@ -63,12 +81,12 @@ int certificatPratt(int p, gmp_randstate_t state)
 	int i;
 
 	
-	mpz_init_set_ui(n, p);
 	
 	mpz_init(a);
 	
 	
-	mpz_init_set_ui(n_1, p - 1);
+	mpz_init_set(p_1, p);
+	mpz_sub_ui(p_1, p_1, 1);
 	mpz_init(resultatPgcd);
 	mpz_init(resultatMod);
 	mpz_init(resultatCalcul);
@@ -80,10 +98,9 @@ int certificatPratt(int p, gmp_randstate_t state)
 
 		exit(1);
 	}
-	if(mpz_cmp_ui(n, 2) == 0)
+	if(mpz_cmp_ui(p, 2) == 0)
 	{
-		clearAll(a, n, n_1, resultatPgcd, resultatMod, resultatCalcul, puis);
-		//printf("Ok ici %d\n", p);
+		clearAll(a, p_1, resultatPgcd, resultatMod, resultatCalcul, puis);
 		fclose(fichier);
 
 		return 1;
@@ -92,27 +109,29 @@ int certificatPratt(int p, gmp_randstate_t state)
 	{
 		do
 		{
-			mpz_urandomm(a, state, n); gmp_printf("Ici notre a vaut a = %Zd et n = %Zd\n", a, n);
+			mpz_urandomm(a, state, p); gmp_printf("Ici notre a vaut a = %Zd et p = %Zd\n", a, p);
 		}while(mpz_cmp_ui(a, 0) == 0 || mpz_cmp_ui(a, 1) == 0);
 		//gmp_printf("p = %d ! et a = %Zd , n = %Zd, n_1 = %Zd\n",p, a, n, n_1);
-		mpz_gcd(resultatPgcd, a, n);
+		mpz_gcd(resultatPgcd, a, p);
 		// gmp_printf("resultatPgcd = %Zd\n", resultatPgcd);
-		mpz_powm(resultatMod, a, n_1, n);
+		mpz_powm(resultatMod, a, p_1, p);
 		//gmp_printf("resultatMod = %Zd\n", resultatMod);
 		if(mpz_cmp_ui(resultatPgcd, 1) == 0 && mpz_cmp_ui(resultatMod, 1) == 0)	// Si pgcd(a,b) = 1 et a^(n-1) = 1 mod n
 		{
-			facteursPremiers fact = factorisation(p - 1);
+			facteursPremiers fact = factorisation(p_1);
 			i = 0;
 			while(i < fact.longueur)
-			{printf("ici i = %d et fact.longueur = %d et facteurs = %d\n", i, fact.longueur, fact.facteurs[i]);
+			{
+				// printf("ici i = %d et fact.longueur = %d et facteurs = %d\n", i, fact.longueur, fact.facteurs[i]);
 				if(certificatPratt(fact.facteurs[i], state) == 1)
 				{
-					mpz_cdiv_q_ui(puis, n_1, fact.facteurs[i]);gmp_printf("puis = %Zd\n", puis);
-					mpz_powm(resultatCalcul, a, puis, n);
+					mpz_cdiv_q(puis, p_1, fact.facteurs[i]);
+					gmp_printf("puis = %Zd\n", puis);
+					mpz_powm(resultatCalcul, a, puis, p);
 					if(mpz_cmp_ui(resultatCalcul, 1) == 0)		// Si resultatCalcul = 1
 					{
 						gmp_printf("resultatCalcul = %Zd\n", resultatCalcul);
-						clearAll(a, n, n_1, resultatPgcd, resultatMod, resultatCalcul, puis);
+						clearAll(a, p_1, resultatPgcd, resultatMod, resultatCalcul, puis);
 						fclose(fichier);
 
 						return certificatPratt(p, state);		// On relance un certificat pour choisir un a aléatoire différent
@@ -121,26 +140,26 @@ int certificatPratt(int p, gmp_randstate_t state)
 				else
 				{
 					printf("Erreur : Un nombre dans la factorisation n'est pas premier.\n");
-					clearAll(a, n, n_1, resultatPgcd, resultatMod, resultatCalcul, puis);
+					clearAll(a, p_1, resultatPgcd, resultatMod, resultatCalcul, puis);
 					fclose(fichier);
 					exit(1);
 				}
 				i = i + 1;
 			}
-			clearAll(a, n, n_1, resultatPgcd, resultatMod, resultatCalcul, puis);
+			clearAll(a, p_1, resultatPgcd, resultatMod, resultatCalcul, puis);
 			fclose(fichier);
 
 			return 1;
 		}
 		else
 		{
-			clearAll(a, n, n_1, resultatPgcd, resultatMod, resultatCalcul, puis);
+			clearAll(a, p_1, resultatPgcd, resultatMod, resultatCalcul, puis);
 			fclose(fichier);
 
 			return 0;
 		}	
 	}
-	clearAll(a, n, n_1, resultatPgcd, resultatMod, resultatCalcul, puis);
+	clearAll(a, p_1, resultatPgcd, resultatMod, resultatCalcul, puis);
 	fclose(fichier);
 
 	return 1;

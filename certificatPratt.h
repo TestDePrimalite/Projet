@@ -8,11 +8,11 @@
 
 struct facteursPremiers
 {
-	int *facteurs;
+	mpz_t *facteurs;
 	int longueur;
 } typedef facteursPremiers;
 
-facteursPremiers factorisation(int f);
-int certificatPratt(int p, gmp_randstate_t state);
+facteursPremiers factorisation(mpz_t f);
+int certificatPratt(mpz_t p, gmp_randstate_t state);
 
 #endif

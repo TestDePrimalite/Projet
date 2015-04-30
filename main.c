@@ -9,14 +9,14 @@
 int main(int argc, char const *argv[])
 {
 	int choix;
-	int p, k, n_;
+	int k, n;
 	facteursPremiers f;
-	mpz_t n;
+	mpz_t p, p_1;
 	gmp_randstate_t state;
 	
 	gmp_randinit_default(state);
-	mpz_init(n);
-
+	mpz_init(p);
+	mpz_init(p_1);
 	do
 	{
 		printf("Test de primalité : \n");
@@ -29,9 +29,9 @@ int main(int argc, char const *argv[])
 		scanf("%d", &choix);
 		if(choix == 1)
 		{
-			printf("Veuillez donner une valeur à p. (Le test sera effectué sur le nombre de Mersenne 2^p - 1)\n\tp = ");
-			scanf("%d", &p);
-			if(lucasLehmerMersenne(p))
+			printf("Veuillez donner une valeur à k. (Le test sera effectué sur le nombre de Mersenne 2^k - 1)\n\tk = ");
+			scanf("%d", &k);
+			if(lucasLehmerMersenne(k))
 				printf("Ce nombre est premier.\n");
 			else
 				printf("Ce nombre n'est pas premier.\n");
@@ -41,8 +41,8 @@ int main(int argc, char const *argv[])
 			printf("Test de la primalité de N = k * 2^n - 1.\nChoix de k ?\n");
 			scanf("%d", &k);
 			printf("Choix de n ?\n");
-			scanf("%d", &n_);
-			if (lucasLehmerRiesel((double)k, (double)n_))
+			scanf("%d", &n);
+			if (lucasLehmerRiesel((double)k, (double)n))
 				printf("Ce nombre est premier.\n");
 			else
 				printf("Ce nombre n'est pas premier.\n");
@@ -51,27 +51,27 @@ int main(int argc, char const *argv[])
 		{
 
 			printf("Certificat de Pratt : Veuillez rentrer un nombre :\n");
-			scanf("%d", &p);
-			gmp_randseed_ui(state, p);
+			gmp_scanf("%Zd", &p);
+			gmp_randseed(state, p);
 			if(certificatPratt(p, state))
-				printf("Ce nombre est premier.\n");
+				gmp_printf("Le nombre %Zd est premier.\n", p);
 			else
-				printf("Ce nombre n'est pas premier.\n");
+				gmp_printf("Le nombre %Zd n'est pas premier.\n", p);
 		}
 		else if(choix == 4)
 		{
 			printf("Test de Pocklington : Veuillez rentrer un nombre :\n");
-			scanf("%d", &p);
-			mpz_set_ui(n, p);
-			f = factorisation(p-1);
-			if(pocklington(n, &f))
+			gmp_scanf("%Zd", &p);
+			mpz_sub_ui(p_1, p, 1);
+			f = factorisation(p_1);
+			if(pocklington(p, &f))
 				printf("Ce nombre est premier.\n");
 			else
 				printf("Ce nombre n'est pas premier.\n");
 		}
 	}while(choix == 1 || choix == 2 || choix == 3 || choix == 4);
+	mpz_clear(p);
 	
-	mpz_clear(n);
 
 	return 0;
 }

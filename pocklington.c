@@ -28,7 +28,6 @@ int pocklington(mpz_t n, facteursPremiers *f) {
 	int i, i_min, j, res;
 	
 	res = -1;
-	
 	mpz_init(n_);
 	mpz_init(a);
 	mpz_init(q);
@@ -43,12 +42,11 @@ int pocklington(mpz_t n, facteursPremiers *f) {
 	mpz_sub_ui(tmp, tmp, 1);
 	i_min = 0;
 	for (i = 0; i < f->longueur; i++) {
-		if (mpz_cmp_ui(tmp, f->facteurs[i]) < 0) {
+		if (mpz_cmp(tmp, f->facteurs[i]) < 0) {
 			i_min = i;
 			break;
 		}
 	}
-	
 	for (j = 0; j < LIMIT; j++) {
 		//TODO: changer le a en int
 		mpz_set_ui(a, primes[j]);
@@ -73,7 +71,7 @@ int pocklington(mpz_t n, facteursPremiers *f) {
 		}
 		for (i = i_min; i < f->longueur; i++) {
 			//TODO: changer le q en int
-			mpz_set_ui(q, f->facteurs[i]);
+			mpz_set(q, f->facteurs[i]);
 			//On verifie si pgcd(a^((n-1)/q)-1, n) = 1 (si oui, n est premier)
 			mpz_divexact(tmp, n_, q);
 			mpz_powm(tmp, a, tmp, n);
@@ -87,7 +85,7 @@ int pocklington(mpz_t n, facteursPremiers *f) {
 				}
 			}
 			else {
-				printf("Succes du test de Pocklington : q = %i, a = %i\n", f->facteurs[i], primes[j]);
+				gmp_printf("Succes du test de Pocklington : q = %Zd, a = %i\n", f->facteurs[i], primes[j]);
 				res = 2;
 				break;
 			}
