@@ -57,6 +57,15 @@ facteursPremiers factorisation(mpz_t f)
 	return fact;
 }
 
+void clearFacteursPremiers(facteursPremiers f)
+{
+	int i;
+
+	for (i = 0; i < f.longueur; i++)
+		mpz_clear(f.facteurs[i]);
+	free(f.facteurs);
+}
+
 static void clearAll(mpz_t a, mpz_t p_1, mpz_t resultatPgcd, mpz_t resultatMod, mpz_t resultatCalcul, mpz_t puis)
 {
 	mpz_clear(a);
@@ -132,6 +141,7 @@ int certificatPratt(mpz_t p, gmp_randstate_t state)
 					{
 						gmp_printf("resultatCalcul = %Zd\n", resultatCalcul);
 						clearAll(a, p_1, resultatPgcd, resultatMod, resultatCalcul, puis);
+						clearFacteursPremiers(fact);
 						fclose(fichier);
 
 						return certificatPratt(p, state);		// On relance un certificat pour choisir un a aléatoire différent
@@ -141,12 +151,14 @@ int certificatPratt(mpz_t p, gmp_randstate_t state)
 				{
 					printf("Erreur : Un nombre dans la factorisation n'est pas premier.\n");
 					clearAll(a, p_1, resultatPgcd, resultatMod, resultatCalcul, puis);
+					clearFacteursPremiers(fact);
 					fclose(fichier);
 					exit(1);
 				}
 				i = i + 1;
 			}
 			clearAll(a, p_1, resultatPgcd, resultatMod, resultatCalcul, puis);
+			clearFacteursPremiers(fact);
 			fclose(fichier);
 
 			return 1;

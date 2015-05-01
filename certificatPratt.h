@@ -13,6 +13,7 @@ struct facteursPremiers
 } typedef facteursPremiers;
 
 facteursPremiers factorisation(mpz_t f);
+void clearFacteursPremiers(facteursPremiers f);
 int certificatPratt(mpz_t p, gmp_randstate_t state);
 
 #endif

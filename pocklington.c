@@ -103,6 +103,7 @@ int pocklington(mpz_t n, facteursPremiers *f) {
 	mpz_clear(a);
 	mpz_clear(q);
 	mpz_clear(tmp);
-	
+	clearFacteursPremiers(*f);
+
 	return res;
 }
