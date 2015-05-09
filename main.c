@@ -75,6 +75,8 @@ int main(int argc, char const *argv[])
 		}
 	}while(choix == 1 || choix == 2 || choix == 3 || choix == 4);
 	mpz_clear(p);
+	mpz_clear(p_1);
+	gmp_randclear(state);
 
 	return 0;
 }
