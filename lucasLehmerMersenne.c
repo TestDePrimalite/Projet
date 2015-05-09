@@ -8,8 +8,7 @@ int lucasLehmerMersenne(int p)
 
 	mpz_init_set_ui(m, pow(2,p) - 1);
 	mpz_init_set_ui(s, 4);
-
-	if(p <= 0)
+	if(p <= 1)
 	{
 		printf("Cette puissance est incorrect. Retour au menu.\n");
 		mpz_clear(m);
@@ -18,7 +17,7 @@ int lucasLehmerMersenne(int p)
 		return 0;
 	}
 	gmp_printf("On va vérifier si le nombre de Mersenne %Zd est premier ou non.\n", m);
-	while(i < p - 2)
+	while(i < p - 2)			// On effectue p-2 fois les instructions suivantes : 
 	{
 		mpz_mul(s, s, s);		// s = s * s
 		mpz_sub_ui(s, s, 2);	// s = s - 2

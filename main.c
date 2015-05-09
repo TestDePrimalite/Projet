@@ -10,6 +10,7 @@ int main(int argc, char const *argv[])
 {
 	int choix;
 	int k, n;
+	int valeurCertificat;
 	facteursPremiers f;
 	mpz_t p, p_1;
 	gmp_randstate_t state;
@@ -53,8 +54,11 @@ int main(int argc, char const *argv[])
 			printf("Certificat de Pratt : Veuillez rentrer un nombre :\n");
 			gmp_scanf("%Zd", &p);
 			gmp_randseed(state, p);
-			if(certificatPratt(p, state))
+			valeurCertificat = certificatPratt(p, state);
+			if(valeurCertificat == 1)
 				gmp_printf("Le nombre %Zd est premier.\n", p);
+			else if(valeurCertificat == -1)
+				gmp_printf("Une erreur s'est produite: on ne peut rien conclure.\n");
 			else
 				gmp_printf("Le nombre %Zd n'est pas premier.\n", p);
 		}
@@ -71,7 +75,6 @@ int main(int argc, char const *argv[])
 		}
 	}while(choix == 1 || choix == 2 || choix == 3 || choix == 4);
 	mpz_clear(p);
-	
 
 	return 0;
 }
