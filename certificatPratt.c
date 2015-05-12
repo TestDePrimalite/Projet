@@ -98,17 +98,10 @@ int certificatPratt(mpz_t p, gmp_randstate_t state)
 	mpz_init(puis);
 	mpz_init_set(p_1, p);
 	mpz_sub_ui(p_1, p_1, 1);
-	fichier = fopen("nombresPremiers.txt", "r+");
-	if(fichier == NULL)
-	{
-		printf("Erreur lors de l'ouverture du fichier nombresPremiers.txt.\n");
 
-		exit(1);
-	}
 	if(mpz_cmp_ui(p, 2) == 0)		// Si p = 2 la fonction renvoie 1
 	{
 		clearAll(a, p_1, resultatPgcd, resultatMod, resultatCalcul, puis);
-		fclose(fichier);
 
 		return 1;
 	}
@@ -136,7 +129,6 @@ int certificatPratt(mpz_t p, gmp_randstate_t state)
 						gmp_printf("On rentre dans le rare cas où la 3eme condition n'est pas vérifiée. Test avec un a différent...\n");
 						clearAll(a, p_1, resultatPgcd, resultatMod, resultatCalcul, puis);
 						clearFacteursPremiers(fact);
-						fclose(fichier);
 
 						return certificatPratt(p, state);		// On relance un certificat pour choisir un a aléatoire différent
 					}
@@ -146,7 +138,6 @@ int certificatPratt(mpz_t p, gmp_randstate_t state)
 					printf("Erreur : Un nombre dans la factorisation n'est pas premier.\n");
 					clearAll(a, p_1, resultatPgcd, resultatMod, resultatCalcul, puis);
 					clearFacteursPremiers(fact);
-					fclose(fichier);
 
 					return -1;
 				}
@@ -154,20 +145,17 @@ int certificatPratt(mpz_t p, gmp_randstate_t state)
 			}
 			clearAll(a, p_1, resultatPgcd, resultatMod, resultatCalcul, puis);
 			clearFacteursPremiers(fact);
-			fclose(fichier);
 
 			return 1;	// Si tous ces tests sont passés, cela veut dire que le nombre est premier.
 		}
 		else 	// Sinon si pgcd(a,b) != 1 ou a^(n-1) != 1 mod n
 		{
 			clearAll(a, p_1, resultatPgcd, resultatMod, resultatCalcul, puis);
-			fclose(fichier);
 
 			return 0;
 		}	
 	}
 	clearAll(a, p_1, resultatPgcd, resultatMod, resultatCalcul, puis);
-	fclose(fichier);
 
 	return 1;	
 }
