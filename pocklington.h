@@ -7,9 +7,6 @@
 #include <math.h>
 #include "certificatPratt.h"
 
-/*
-
-*/
 int pocklington(mpz_t n, facteursPremiers *f);
 
 #endif

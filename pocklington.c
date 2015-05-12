@@ -2,6 +2,7 @@
 
 #define LIMIT sizeof(primes) / sizeof(unsigned int)
 
+//Tableau de nombres premiers pour la recherche de a
 const unsigned int primes[] = {
   2,3,5,7,11,13,17,19,23,29,
   31,37,41,43,47,53,59,61,67,71,
@@ -22,6 +23,11 @@ const unsigned int primes[] = {
   947,953,967,971,977,983,991,997,
 };
 
+/*
+ * Test de primalité de Pocklington
+ * On teste si n est premier
+ * avec f une liste de facteurs premiers de n-1
+ */
 int pocklington(mpz_t n, facteursPremiers *f) {
 	mpz_t n_; //n-1
 	mpz_t a, q, tmp;
@@ -48,7 +54,6 @@ int pocklington(mpz_t n, facteursPremiers *f) {
 		}
 	}
 	for (j = 0; j < LIMIT; j++) {
-		//TODO: changer le a en int
 		mpz_set_ui(a, primes[j]);
 		//On verifie si a = n (si oui, n est premier)
 		if (mpz_cmp(n, a) == 0) {
@@ -70,7 +75,6 @@ int pocklington(mpz_t n, facteursPremiers *f) {
 			break;
 		}
 		for (i = i_min; i < f->longueur; i++) {
-			//TODO: changer le q en int
 			mpz_set(q, f->facteurs[i]);
 			//On verifie si pgcd(a^((n-1)/q)-1, n) = 1 (si oui, n est premier)
 			mpz_divexact(tmp, n_, q);

@@ -1,5 +1,9 @@
 #include "lucasLehmerRiesel.h"
 
+/* 
+ * Test de primalité de Lucas-Lehmer-Riesel
+ * On teste si N = k*2n-1 est premier.
+ */
 int lucasLehmerRiesel(int k, int n)
 {
 	//Ajustement de k et n si k est pair

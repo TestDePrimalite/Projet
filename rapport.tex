@@ -15,6 +15,10 @@
 François Parodi}
 \date{\today}
 
+\renewcommand{\labelitemi}{$\bullet$}
+
+\newtheorem{theorem}{Theorem}[section]
+
 \maketitle
 
 \newpage
@@ -25,30 +29,311 @@ François Parodi}
 
 \section*{Introduction}
 
+Les nombres premiers jouent un rôle fondamental en cryptographie asymétrique.
+Il est donc intéressant de pouvoir tester la primalité d'un nombre donné.\\
+
+Le but de ce projet est d'étudier quatre différents algorithmes de tests
+de primalité : le test de Lucas-Lehmer pour les nombres de Mersennes, le test
+Lucas-Lehmer-Riesel, les certificats de Pratt, et le test de Pocklington.\\
+
+Ce projet est réalisé en C et utilise la bibliothèque GMP pour la manipulation
+de très grands nombres.
+
+\newpage
+
 \section{Lucas-Lehmer pour nombres de Mersenne}
 
 \subsection{Théorème}
 
+Le test de Lucas-Lehmer est un test de primalité pour les nombres de Mersenne.
+Les nombres de Mersenne, non nécessairement premiers, constituent la suite
+de nombre $M_p = 2^p - 1$ avec $p$ premier (Cette condition est nécessaire
+pour que $M_p$ soit premier). Ces nombres sont candidats à être premiers.
+Le théorème correspondant au test est le suivant : 
+
+\begin{theorem}
+Soient $p$ un nombre premier, et $M_p = 2^p - 1$ le nombre de Mersenne à
+tester. On défini la suite $\{s_i\}$ pour tous les $i\geq0$ par
+$$
+s_i = 
+\left \{
+   \begin{array}{r c}
+      4,  				& $si$ \ i = 0; \\
+      s_{i-1}^2-1 & $sinon$. 
+   \end{array}
+   \right .
+$$
+Alors $M_p$ est premier si et seulement si :
+$$
+s_{p-2}\equiv 0 \ (M_p).
+$$
+\end{theorem}
+Dans le cas contraire, $M_p$ est un nombre composé. Le nombre $s_{p-2}$
+mod $M_p$ est appelé le "résidu de Lucas-Lehmer" de p. A noter que si $p$
+n'est pas premier, cela implique que $M_p$ n'est pas premier.
+
 \subsection{Implémentation}
+
+La fonction \textbf{int lucasLehmerMersenne(int p)} prend en entrée un entier
+$p \geq 2$. Le but de cette fonction est de renvoyer $1$ si le nombre de
+Mersenne correspondant au $p$ est premier, et $0$ sinon. Si $p \leq 1$, un
+message d'erreur est affiché, et la fonction renvoie 0. Sinon, elle calcule
+une variable $m = 2^p-1$, qui est le nombre de Mersenne correspondant au $p$. 
+Ensuite, on effectue $p-2$ fois l'opération $s = s^2 - 2$, en initialisant
+$s = 4$. Du coup, dans le cas de $p = 2$, le nombre de Mersenne $M_2=2^2-1=3$
+est premier, mais on ne rentre pas dans la boucle. A la place, dans le test
+final qui est si $s=0$ on teste également si $p=2$. Si une de ces deux conditions
+est vérifiée, alors on renvoie $1$, ce qui signifie que le nombre de Mersenne
+$M_p$ est premier. Sinon, on renvoie $0$.\\
+
+On peut noter que dans notre implémentation, on peut donner en entrée
+n'importe quel nombre $p\leq 2$, c'est à dire que le $p$ donné en entrée
+n'est pas forcément premier. En effet, $p$ premier étant une condition
+nécessaire pour que $M_p$ soit premier, si le nombre en entrée n'est pas
+premier, alors la fonction renverra tout simplement 0, ce qui indique que
+le nombre $M_p=2^p-1$ correspondant n'est pas premier.
+
+\newpage
 
 \section{Lucas-Lehmer-Riesel}
 
 \subsection{Théorème}
 
+Le test de Lucas-Lehmer-Riesel est un test de primalité pour les nombres
+de la forme $N = k \cdot 2n - 1$, avec 2n > k. Il repose sur le théorème suivant :
+
+\begin{theorem}
+Soit une suite $\{u_i\}$ pour tout i > 0 définie par $u_i = u_{i-1}^2 - 2$.\\
+Alors N est premier si et seulement si N divise $u_{n-2}$.
+\end{theorem}
+
+On va choisir la valeur de départ $u_0$ en fonction de N :
+\begin{itemize}
+\item Si k = 1 et n est impair, on prend $u_0$ = 4. Si $n \equiv 3 \bmod{4}$, on peut prendre $u_0$ = 3.
+\item Si k = 3 et $n \equiv 0$ ou $3 \bmod{4}$, alors on prend $u_0$ = 5778.
+\item Si $k \equiv 1$ ou $5 \bmod{6}$, et que 3 ne divise pas N, alors on prend $u_0 = (2 + \sqrt{3})^k + (2 - \sqrt{3})^k$
+\item Sinon, k est un multiple de 3 et il est difficile de sélectionner une bonne valeur pour $u_0$.
+\end{itemize}
+
 \subsection{Implémentation}
+
+La fonction lucasLehmerRiesel(int k, int n) renvoie vrai si le nombre $N = k \cdot 2n - 1$
+est premier, faux sinon. Si k est un multiple de 3, la fonction ne fait pas de calculs
+et déclare le résultat indéterminé. Si le k en entrée est pair, la fonction procède à un ajustement
+de k et n tel qu'on ait bien $N = k \cdot 2n - 1$ avec k impair.
+
+\newpage
 
 \section{Certificats de Pratt}
 
 \subsection{Théorème}
 
+Historiquement, le concept des certificats de primalité a été introduit
+par le Certificat de Pratt. Son but est de prouver qu'un nombre donné en
+entrée est premier en un temps polynomial. Il est basé sur le test de
+primalité de Lucas-Lehmer, qui est essentiellement la réciproque du Petit
+théorème de Fermat. Pour le rendre vrai, on rajoute une condition. Ainsi
+on a le théorème suivant (pour tester si un nombre $n$ donné en entrée est
+premier ou non):
+
+\begin{theorem}
+On considère un entier $a$ tel que:
+\begin{itemize}
+	\item	$a$ et $n$ sont premiers entre eux;
+	\item	$a^{n-1} \equiv 1 \ (n)$ ;
+	\item	Pour chaque facteur premier $q$ de $n-1$, on a : $a^\frac{n-1}{q} \not\equiv 1 \ (n)$.
+\end{itemize}
+Alors, $n$ est premier.
+\end{theorem}
+
+Le choix du $a$ est généralement fait aléatoirement en respectant la
+condition $2\leq a \leq n - 1$. Si les deux premières conditions sont
+respectées, il y a de très fortes chances que la troisième conditions
+soit également respectée. En effet les deux premières conditions sont
+nécessaires pour qu'un nombre soit premier, mais pas suffisante. La
+troisième rend l'ensemble de ces tests suffisants pour prouver qu'un
+nombre est premier. Si on tombe dans les très rares cas où elle n'est
+respectée, en général on relance le certificat avec un a différent.
+Algorithmiquement, il a une assez grande complexité, car pour chaque
+facteur premier, on veut être sur que ce nombre est bien premier : Il
+faut ainsi que chaque facteur vérifie ce théorème.
+
 \subsection{Implémentation}
+
+La fonction \textbf{int certificatPratt(mpz\_t p, gmp\_randstate\_t state)}
+renvoie $1$ si le nombre $p$ est premier, $0$ sinon (Où si l'on a pas pu
+prouver qu'il était premier), et $-1$ si une erreur a été rencontrée.
+Cette fois le type en entrée est un mpz\_t tout simplement car on veut
+gérer de très grands nombres. l'argument state sert uniquement à déterminer
+la graine qui permet de choisir l'entier $a$ aléatoire.
+Dans notre code, l'élément qui permet d'arrêter de certificat, est lorsque
+$n = 2$. Pour bien illustrer le fonctionnement du programme, voici un exemple
+tiré du site Wikipédia pour le nombre $229$ (Les $a$ sont choisis aléatoirement):
+\\
+\\
+$n=229$ ($a=6$, $n-1=228=2^2\times 3\times 19$)
+\begin{enumerate}
+	\item $n=2$ : n est premier.
+	\item $n=3$ : ($a=2$, $n-1=2$)
+	\begin{enumerate}
+		\item $n=2$ : n est premier.
+	\end {enumerate}
+	\item $n=19$ ($a=2$, $n-1=18=2\times 3^2$)
+	\begin{enumerate}
+		\item $n=2$ : n est premier.
+		\item $n=3$ ($a=2$, $n-1=2$)
+		\begin{enumerate}
+			\item $n=2$ : n est premier.
+		\end {enumerate}
+	\end {enumerate}
+\end {enumerate}
+
+
+Dans les fichiers \textbf{certificatPratt.h} et \textbf{certificatPratt.c},
+on a $3$ fonctions supplémentaires ainsi qu'une nouvelle structure de données.
+Cette structure est défini de la manière suivante :
+
+\begin{lstlisting}
+struct facteursPremiers
+{
+	mpz\_t \*facteurs;
+	int longueur;
+} typedef facteursPremiers;
+\end{lstlisting}
+Cette structure va être utilisée pour stocker un tableau de mpz\_t ainsi
+qu'un entier qui détermine la longueur du tableau.
+La fonction \textbf{facteursPremiers factorisation(mpz\_t f)} est la fonction
+qui va justement préparer une variable du type facteursPremiers, en décomposants
+en produits de facteurs premier la variable $f$ donnée en entrée (un algorithme
+naif de factorisation est utilisé ici). Voici le fonctionnement du coeur de la fonction: 
+\begin{lstlisting}
+i = 0;
+marqueur = 0;
+fact.longueur = 0;
+while(i \leq \sqrt{f})	
+{
+	if(f \% i == 0)	
+	{
+		while(f \% i == 0)
+		{
+			f = \frac{f}{i}
+		}
+		fact.longueur ++;				
+		fact.facteurs[marqueur] = i;
+		marqueur++;
+	}
+	i = i + 1;
+}
+\end{lstlisting}
+Tant que $f$ est divisible par $i$, on le divise par $i$ sans incrémenter
+$i$. Ansi, si par exemple $f$ est divisible par $2^3$, on divisera $f$ par
+$2$ à $3$ reprise, ce qui permettra de stocker dans notre tableau uniquement
+un seul $2$. En effet on ne cherche pas à stocker le nombre de fois que
+chaque diviseur apparaît, car nous n'en avons pas besoin dans notre programme.
+Suite à cela, si jamais $f$ vaut une valeur différente de $1$, cela signifie
+qu'il reste à stocker ce diviseur : ce qui est fait à la suite du programme,
+après avoir vérifié si on a bien $fact.longueur\geq 1$. En effet, si
+$fact.longueur==0$, cela signifie qu'un diviseur n'a été trouvé: dans ce
+cas, on stocke dans le tableau $f$ lui même. La suite de la fonction consiste
+juste à allouer de la mémoire pour la variable $fact.facteurs$, et libérer
+la mémoire des variables mpz\_t.
+\\
+
+Les deux autres fonctions \textbf{void clearFacteursPremiers(facteursPremiers f)}
+et \textbf{static void clearAll(mpz\_t a, mpz\_t p\_1, mpz\_t resultatPgcd,
+mpz\_t resultatMod, mpz\_t resultatCalcul, mpz\_t puis)} sont simplement des
+fonctions qui vont libérer la mémoire du tableau des variables facteursPremiers
+ainsi que chaque variable du type mpz\_t.
+\\
+
+Voyons la fonction principale \textbf{int certificatPratt(mpz\_t p, \\
+gmp\_randstate\_t state)} plus en détail. Tout d'abord, on teste simplement
+si $p=2$. Dans ce cas la fonction renvoie directement $1$.
+Sinon, on va prendre un a aléatoire, et vérifier les deux premières conditions,
+c'est à dire :
+$$
+pgcd(a,p)=1
+$$
+et
+$$
+a^{n-1} \equiv 1 \ (n).
+$$
+Si une de ces condition n'est pas respectée, la fonction renvoie $0$ (Car
+comme dit précédemment, ces conditions sont nécessaires).
+Sinon, on va stocker dans une variable facteursPremiers fact, les facteurs
+de $p-1$. Pour chaque facteur (Pour $i$ allant de $0$ à fact.longueur), on
+teste si le certificat de Pratt renvoie bien $1$ sur chacun de ses facteurs
+fact.facteurs[i] (Il y a donc ici la récursivité du programme). Si un de ces
+certificats renvoie $0$, cela veut dire que la fonction de factorisation à
+renvoyé un facteur non premier : erreur s'affiche, et on sort de la fonction
+en renvoyant $-1$. Sinon, on teste la dernière condition : 
+$$
+a^\frac{n-1}{fact.facteurs[i]}\not\equiv 1.
+$$
+Si cette condition n'est pas respectée (C'est à dire que le résultat de ce
+calcul est $1$), cela veut dire qu'on rentre dans le cas très rare que les
+deux premières conditions ont été respectés, mais pas la troisième : On relance
+donc un certificat sur $p$. Sinon, rien n'est effectué : le but est d'ici de
+s'assurer que chaque fact.facteur[i] respecte la dernière condition.
+Si on sort de la boucle en ayant testé chaque facteur, on peut alors renvoyer
+$1$, car cela veut dire tous les facteurs respectent la relation 
+$$
+a^\frac{n-1}{fact.facteurs[i]}\not\equiv 1.
+$$
+Si la fonction renvoie $1$, on certifie alors que le nombre $p$ donné en
+entrée est premier.
+
+\newpage
 
 \section{Amélioration de Pocklington}
 
 \subsection{Théorème}
 
+Le test de primalité de Pocklington a été mis au point par Henry Cabourn
+Pocklington et Derrick Henry Lehmer.\\
+
+Ce test repose sur le théorème de Pocklington (ou critère de Pocklington) :
+
+\begin{theorem}
+Soit N > 1 un entier.\\
+S'il existe des nombres a et q tels que :\\
+(1) q est premier, q|N-1 et q > $\sqrt{N}$-1\\
+(2) $a^{N-1} \equiv 1 \bmod{N}$\\
+(3) $pgcd(a^{(N-1)/q}-1, N) = 1$\\
+Alors N est premier.
+\end{theorem}
+
 \subsection{Implémentation}
 
+La fonction pocklington(mpz\_t n, facteursPremiers *f) prend en entrée le
+nombre à tester n et une liste de facteurs premiers de n-1, et renvoie vrai
+si n est premier, faux sinon. On commence par calculer le facteur minimum $f_{imin}$ de
+la liste de facteurs premiers de n-1 tel que $f_{imin} > \sqrt{N}-1$. Ensuite, on
+recherche des valeurs a et q en utilisant une double boucle imbriquée. a va
+prendre les valeurs successives de nombres premiers, q va aller de $f_{imin}$
+jusqu'à $f_{imax}$. On regarde pour ces valeurs si on a bien les conditions (2) et (3),
+et on sort en renvoyant vrai dès qu'un couple (q, a) marche.
+
+
+\newpage
+
 \section*{Conclusion}
+
+Le programme obtenu à l'issue du projet satisfait l'ensemble des critères
+fixés initialement, qui étaient de programmer les deux tests de Lucas-Lehmer
+(Pour les nombres de Mersenne et les nombres de Riesel) ainsi que le certificat
+de Pratt et son amélioration de Pocklington.\\
+
+Les deux premières fonctions ont été assez rapidement comprises au niveau
+des algorithmes, puis codés facilement. Etant donné que nous savions coder
+avec la bibliothèque gmp.h, nous n'avons pas perdu de temps à l'apprentissage
+de l'utilisation de cette bibliothèque. Nous n'avons pas eu de problèmes
+particuliers au niveau de ces deux fonctions. Les réelles difficultés ce
+sont situés au niveau du certificat de Pratt ainsi que de son amélioration
+de Pocklington. Concernant le certificat de Pratt, l'algorithme à été bien
+plus dur à saisir au début, et même une fois saisi, le code n'a pas été simple
+à écrire. En effet, c'est surtout la récursivité qui posait problème : il
+fallait que le programme puisse être récursif, sans qu'il ne puisse se bloquer
+à l'infini.
 
 \end{document}

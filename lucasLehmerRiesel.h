@@ -6,9 +6,6 @@
 #include "gmp.h"
 #include <math.h>
 
-/*
-
-*/
 int lucasLehmerRiesel(int k, int n);
 
 #endif
