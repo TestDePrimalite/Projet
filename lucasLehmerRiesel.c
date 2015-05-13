@@ -2,7 +2,7 @@
 
 /* 
  * Test de primalité de Lucas-Lehmer-Riesel
- * On teste si N = k*2n-1 est premier.
+ * On teste si N = k*2^n-1 est premier.
  */
 int lucasLehmerRiesel(int k, int n)
 {
