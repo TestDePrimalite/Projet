@@ -99,8 +99,8 @@ int pocklington(mpz_t n, facteursPremiers *f) {
 		}
 	}
 	if (res == -1) {
-		printf("Tres grandes chances que n soit premier\n");
-		res = 1; //grandes chances que n soit premier
+		printf("La primalité est indécidée.\n");
+		res = 1;
 	}
 	
 	mpz_clear(n_);
