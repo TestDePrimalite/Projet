@@ -6,7 +6,9 @@ int lucasLehmerMersenne(int p)
 	mpz_t m;
 	mpz_t s;
 
-	mpz_init_set_ui(m, pow(2,p) - 1);
+	mpz_init(m);
+	mpz_ui_pow_ui(m, 2, p);
+	mpz_sub_ui(m, m,1);
 	mpz_init_set_ui(s, 4);
 	if(p <= 1)
 	{
