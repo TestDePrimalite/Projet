@@ -84,7 +84,6 @@ void clearFacteursPremiers(facteursPremiers f)
 
 int certificatPratt(mpz_t p, gmp_randstate_t state)
 {
-	FILE *fichier = NULL;
 	mpz_t a;		// Variable qui sera défini aléatoirement
 	mpz_t p_1;		// Variable qui sera initialisée à p - 1
 	mpz_t resultatPgcd, resultatMod, resultatCalcul;	// Variables qui contiendront des résultats de calculs

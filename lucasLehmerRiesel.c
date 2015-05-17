@@ -12,13 +12,6 @@ int lucasLehmerRiesel(int k, int n)
 		k = k / 2;
 		n = n + 1;
 	}
-	
-	//Il faut que 2^n > k
-	if (pow(2,n) <= k)
-	{
-		printf("Erreur: 2^n <= k\n");
-		return 0;
-	}
 
 	//N = k * 2^n - 1
 	int n_, k_;
@@ -27,13 +20,19 @@ int lucasLehmerRiesel(int k, int n)
 	mpz_init(r);
 	mpz_init(N);
 	mpz_ui_pow_ui(N, 2, n);
+
+	//Il faut que 2^n > k
+	if (mpz_cmp_ui(N,k)<= 0)
+	{
+		printf("Erreur: 2^n <= k\n");
+		return 0;
+	}
 	mpz_mul_ui(N, N, k);
 	mpz_sub_ui(N, N, 1);
 	gmp_printf("On va vérifier si le nombre %Zd est premier ou non.\n", N);
 	
 	//Choix de u0
 	double u0 = -1;
-
 	if (k == 1)
 	{
 		if (n % 2 == 1)
@@ -61,8 +60,7 @@ int lucasLehmerRiesel(int k, int n)
 			mpz_t r3;
 			mpz_init(r3);
 			mpz_cdiv_r_ui(r3, N, 3);
-			mpz_cmp_ui(r3, 0);
-			if (r3 != 0)
+			if (mpz_cmp_ui(r3, 0) != 0)
 			{
 				u0 = pow(2. + sqrt(3.), k) + pow(2. - sqrt(3.), k);
 			}
@@ -96,8 +94,7 @@ int lucasLehmerRiesel(int k, int n)
 	mpz_cdiv_r(r, u, N);
 	mpz_clear(u);
 	mpz_clear(N);
-	
-	if (r == 0)
+	if (mpz_cmp_ui(r, 0) == 0)
 	{
 		mpz_clear(r);
 		//N est premier

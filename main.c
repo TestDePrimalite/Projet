@@ -22,7 +22,7 @@ int main(int argc, char const *argv[])
 	{
 		printf("Test de primalité : \n");
 		printf("1. Test de primalité de Lucas-Lehmer pour les nombres de Mersenne\n");
-		printf("2. Test de primalité de Lucas-Lehmer-Riesel pour les nombres de Proth\n");
+		printf("2. Test de primalité de Lucas-Lehmer-Riesel pour les nombres de Riesel\n");
 		printf("3. Certificats de primalité de Pratt\n");
 		printf("4. Amélioration de Pocklington\n");
 		printf("Autres nombres: Quitter\n");
